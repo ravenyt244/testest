@@ -1,0 +1,156 @@
+if game.PlaceId == 75992362647444 then
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+    local Window = Library.CreateLib("AzraHub • Tap Simulator", {
+        SchemeColor = Color3.fromRGB(83, 91, 255),
+        Background = Color3.fromRGB(0, 0, 0),
+        Header = Color3.fromRGB(0, 0, 0),
+        TextColor = Color3.fromRGB(255, 255, 255),
+        ElementColor = Color3.fromRGB(20, 20, 20)
+    })
+
+    local Info = Window:NewTab("Info")
+    local InfoSection = Info:NewSection("Information")
+    InfoSection:NewButton("Copy Discord Link", "Join our discord server!", function()
+        setclipboard("https://discord.gg/hnmJ3nsHS9")
+    end)
+
+    local Main = Window:NewTab("Main")
+    local MainSection = Main:NewSection("Auto Clicker")
+
+    -- Control variable
+    local AutoClicker = false
+    local AutoRebirth = false
+    local AutoHatch = false
+    local selectedRebirthIndex = 1
+    local selectedEgg = "Basic"
+    local selectedEggAmount = 1
+
+    -- Function to get the game folder dynamically
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local function getGameFolder()
+        for _, folder in ipairs(ReplicatedStorage:GetChildren()) do
+            if folder:IsA("Folder") and folder:FindFirstChild("Events") and folder:FindFirstChild("Functions") then
+                return folder
+            end
+        end
+        warn("No folder with both 'Events' and 'Functions' found in ReplicatedStorage!")
+        return nil
+    end
+
+    -- Auto Clicker
+    MainSection:NewToggle("Auto-Clicker [FAST]", "100 Clicks per second", function(state)
+        AutoClicker = state
+        if AutoClicker then
+            task.spawn(function()
+                while AutoClicker do
+                    local folder = getGameFolder()
+                    if folder then
+                        folder.Events['']:FireServer(true,true,false)
+                    end
+                    task.wait(0.01)
+                end
+            end)
+        end
+    end)
+
+    -- Rebirth options
+    local rebirthOptions = {
+        "+35t rebirths","+15t rebirths","+5t rebirths","+1t rebirths",
+        "+700b rebirths","+350b rebirths","+150b rebirths","+50b rebirths",
+        "+10b rebirths","+7b rebirths","+3.5b rebirths","+1.5b rebirths",
+        "+500m rebirths","+100m rebirths","+70m rebirths","+35m rebirths",
+        "+15m rebirths","+5m rebirths","+1m rebirths","+700k rebirths",
+        "+350k rebirths","+150k rebirths","+50k rebirths","+10k rebirths",
+        "+7k rebirths","+3.5k rebirths","+1.5k rebirths","+500 rebirths",
+        "+100 rebirths","+70 rebirths","+35 rebirths","+15 rebirths",
+        "+5 rebirths","+1 rebirth"
+    }
+
+    MainSection:NewLabel("Auto Rebirth")
+    MainSection:NewDropdown("Choose Rebirth!", "Choose your automatic rebirth amount here", rebirthOptions, function(selected)
+        for index, name in ipairs(rebirthOptions) do
+            if name == selected then
+                selectedRebirthIndex = 35 - index
+                break
+            end
+        end
+    end)
+
+    MainSection:NewToggle("Auto Rebirth", "Automatically rebirth based on selection", function(state)
+        AutoRebirth = state
+        if AutoRebirth then
+            task.spawn(function()
+                while AutoRebirth do
+                    local folder = getGameFolder()
+                    if folder then
+                        folder.Functions['']:InvokeServer(selectedRebirthIndex)
+                    end
+                    task.wait(0.3)
+                end
+            end)
+        end
+    end)
+
+    -- Egg options
+    local eggOptions = {
+        "Acorn","Angelic","Atlantis","Basic","Cactus","Candy","Elemental","Forest",
+        "Frozen","Holy","Magma","Poison","Safari","Sakura","Samurai","Snowman",
+        "Space","Temple","Tropical","Volcanic"
+    }
+
+    MainSection:NewLabel("Auto Hatch")
+    MainSection:NewDropdown("Select Egg", "Select the egg you want to hatch", eggOptions, function(option)
+        selectedEgg = option
+    end)
+
+    MainSection:NewDropdown("Select Egg Amount", "Select the amount of hatching you want", {"1","3","8"}, function(option)
+        selectedEggAmount = tonumber(option)
+    end)
+
+    MainSection:NewToggle("Auto Hatch", "This will make you auto hatch", function(state)
+        AutoHatch = state
+        if AutoHatch then
+            task.spawn(function()
+                while AutoHatch do
+                    local folder = getGameFolder()
+                    if folder then
+                        folder.Functions['']:InvokeServer(selectedEgg, selectedEggAmount, {})
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end)
+
+    -- Customize Tab
+    local Customize = Window:NewTab("Customize")
+    local CustomizeSection = Customize:NewSection("Color Custom")
+    CustomizeSection:NewColorPicker("SchemeColor", "Change your SchemeColor", Color3.fromRGB(0, 255, 255), function(color)
+        Library:ChangeColor("SchemeColor", color)
+    end)
+
+    -- Anti-AFK
+    local GC = getconnections or get_signal_cons
+    if GC then
+        for i, v in pairs(GC(game.Players.LocalPlayer.Idled)) do
+            if v["Disable"] then
+                v["Disable"](v)
+            elseif v["Disconnect"] then
+                v["Disconnect"](v)
+            end
+        end
+    else
+        local vu = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:connect(function()
+            vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end)
+    end
+
+    warn("ANTI AFK!")
+    warn("AZRA HUB HAS BEEN LOADED!")
+end
+
+-- game:GetService("ReplicatedStorage")["e299cf0d-c473-4916-a869-5e0b5356677c"].Events['']:FireServer(true,true,false)
+-- game:GetService("ReplicatedStorage")["e299cf0d-c473-4916-a869-5e0b5356677c"].Functions['']:InvokeServer("Space",3,{})
